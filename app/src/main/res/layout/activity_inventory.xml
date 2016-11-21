@@ -12,7 +12,7 @@
     tools:context="com.example.android.inventoryapp.InventoryActivity">
 
     <TextView
+        android:id="@+id/db_count"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"/>
+        android:layout_height="wrap_content"/>
 </RelativeLayout>
