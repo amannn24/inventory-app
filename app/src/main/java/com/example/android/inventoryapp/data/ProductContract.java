@@ -17,7 +17,7 @@ public class ProductContract {
     }
 
     // URI constants
-    public static final String CONTENT_AUTHORITY = "com.example.android.inventoryapp";
+    public static final String CONTENT_AUTHORITY = "com.example.android.products";
 
     // Selected table in uri
     public static final String PRODUCTS_PATH = "products";
