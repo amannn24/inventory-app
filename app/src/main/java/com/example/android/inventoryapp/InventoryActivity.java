@@ -1,13 +1,11 @@
 package com.example.android.inventoryapp;
 
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
-import com.example.android.inventoryapp.data.ProductDbHelper;
 
 public class InventoryActivity extends AppCompatActivity {
 
@@ -20,7 +18,6 @@ public class InventoryActivity extends AppCompatActivity {
     }
 
     private void displayDatabaseInfo() {
-        SQLiteDatabase db = new ProductDbHelper(this).getReadableDatabase();
 
         String[] projection = new String[] {
                 ProductEntry.COLUUMN_PRODUCT_NAME,
@@ -29,7 +26,8 @@ public class InventoryActivity extends AppCompatActivity {
                 ProductEntry.COLUMN_PRODUCT_IMAGE
         };
 
-        Cursor cursor = db.query(ProductEntry.TABLE_NAME, projection, null, null, null, null, null);
+        Cursor cursor = getContentResolver().query(ProductEntry.CONTENT_URI, projection, null, null, null);
+
 
         int count = cursor.getCount();
 
@@ -37,4 +35,7 @@ public class InventoryActivity extends AppCompatActivity {
         textView.setText("Number of rows in the database: " + String.valueOf(count));
 
     }
+
+    // TODO: Add AsyncLoader
+    // TODO: Add CursorAdaptor and list
 }

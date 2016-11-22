@@ -1,11 +1,14 @@
 package com.example.android.inventoryapp.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
 /**
  * Created by Chris on 11/21/2016.
@@ -33,13 +36,37 @@ public class ProductProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        return false;
+        mDbHelper = new ProductDbHelper(getContext());
+        return true;
     }
 
     @Nullable
     @Override
-    public Cursor query(Uri uri, String[] strings, String s, String[] strings1, String s1) {
-        return null;
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        int match = sUriMatcher.match(uri);
+        Cursor cursor;
+
+        switch (match) {
+            case PRODUCTS:
+                cursor = db.query(ProductEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            case PRODUCT_ID:
+                selection = ProductEntry._ID + "=?";
+                selectionArgs = new String[] {
+                        String.valueOf(ContentUris.parseId(uri))
+                };
+                cursor = db.query(ProductEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            default:
+                throw new IllegalArgumentException("Query not supported for uri: " + uri + " with match: " + match);
+        }
+
+        // Set notification for on update
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+
+        return cursor;
     }
 
     @Nullable
