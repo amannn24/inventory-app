@@ -8,6 +8,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
+
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
 /**
@@ -86,7 +88,14 @@ public class ProductProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-        return null;
+        int match = sUriMatcher.match(uri);
+
+        switch (match) {
+            case PRODUCTS:
+                return insertProduct(uri, contentValues);
+            default:
+                throw new IllegalArgumentException("Insert not supported for uri: " + uri + " with match: " + match);
+        }
     }
 
     @Override
@@ -97,5 +106,29 @@ public class ProductProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
         return 0;
+    }
+
+    /** Helper methods **/
+
+    /**
+     * @param uri that was passed into content resolver
+     * @param values to be inserted
+     * @return the updated uri
+     */
+    private Uri insertProduct(Uri uri, ContentValues values) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        long id = db.insert(ProductEntry.TABLE_NAME, null, values);
+
+        if (id == -1) {
+            Log.e("ProductProvider", "Could not insert product into database");
+            return null;
+        }
+
+        // Send notification to content resolver
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        // Return the new uri with appended id
+        return ContentUris.withAppendedId(uri, id);
     }
 }
