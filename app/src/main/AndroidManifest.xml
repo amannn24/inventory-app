@@ -20,6 +20,10 @@
             android:name=".data.ProductProvider"
             android:authorities="com.example.android.products"
             android:exported="false"/>
+
+        <activity android:name=".EditorActivity"
+            android:parentActivityName=".InventoryActivity">
+        </activity>
     </application>
 
 </manifest>
