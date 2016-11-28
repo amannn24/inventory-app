@@ -51,7 +51,7 @@ public class InventoryActivity extends AppCompatActivity {
                 int quantityIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY);
 
                 String name = cursor.getString(nameIndex);
-                // Get the price back to decimal formatgi
+                // Get the price back to decimal format
                 String price = Double.toString(cursor.getDouble(priceIndex) / 100);
                 String quantity = Integer.toString(cursor.getInt(quantityIndex));
 
