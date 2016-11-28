@@ -43,8 +43,23 @@ public class InventoryActivity extends AppCompatActivity {
         if (cursor != null) {
             int count = cursor.getCount();
 
+            String result = "";
+
+            while (cursor.moveToNext()) {
+                int nameIndex = cursor.getColumnIndex(ProductEntry.COLUUMN_PRODUCT_NAME);
+                int priceIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE);
+                int quantityIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY);
+
+                String name = cursor.getString(nameIndex);
+                // Get the price back to decimal formatgi
+                String price = Double.toString(cursor.getDouble(priceIndex) / 100);
+                String quantity = Integer.toString(cursor.getInt(quantityIndex));
+
+                result += name + " - " + price + " - " + quantity + "\n\n";
+            }
+
             TextView textView = (TextView) findViewById(R.id.db_count);
-            textView.setText("Number of rows in the database: " + String.valueOf(count));
+            textView.setText(result);
             cursor.close();
         }
     }

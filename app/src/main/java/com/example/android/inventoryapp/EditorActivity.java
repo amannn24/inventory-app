@@ -4,12 +4,14 @@ import android.content.ContentValues;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
+import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 
 public class EditorActivity extends AppCompatActivity {
@@ -34,7 +36,8 @@ public class EditorActivity extends AppCompatActivity {
                 // Get values
                 String name = nameField.getText().toString();
                 // Save price multiplied by 100 to save without decimals for accuracy
-                int price = Math.round(Float.parseFloat(priceField.getText().toString()) * 100);
+                int price = (int) (parseDouble(priceField.getText().toString()) * 100);
+                Log.i("EditorActivity", "Price is $" + priceField.getText().toString());
                 int quantity = parseInt(quantityField.getText().toString());
 
                 addProduct(name, price, quantity);
