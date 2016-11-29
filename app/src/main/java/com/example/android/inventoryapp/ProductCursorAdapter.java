@@ -10,17 +10,19 @@ import android.widget.TextView;
 
 import com.example.android.inventoryapp.data.ProductContract;
 
+import java.util.Locale;
+
 /**
  * Created by Chris on 11/28/2016.
  */
 
 public class ProductCursorAdapter extends CursorAdapter {
 
-
     /**
      * Constructs a new {@link #ProductCursorAdapter}
+     *
      * @param context
-     * @param c the cursor that holds the data
+     * @param c       the cursor that holds the data
      */
     public ProductCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
@@ -42,12 +44,16 @@ public class ProductCursorAdapter extends CursorAdapter {
         int quantityIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
 
         String name = cursor.getString(nameIndex);
-        // Get the price back to decimal format
-        String price = Double.toString(cursor.getDouble(priceIndex) / 100);
+
+        // Get the price back to decimal format with zeros padding
+        double priceDouble = cursor.getDouble(priceIndex) / 100;
+        String price = String.format(Locale.US, "%1.2f", priceDouble);
+        String formattedPrice = String.format(context.getString(R.string.quantity_text_view), price);
+
         String quantity = Integer.toString(cursor.getInt(quantityIndex));
 
         nameTextView.setText(name);
-        priceTextView.setText(price);
+        priceTextView.setText(formattedPrice);
         quantityTextView.setText(quantity);
     }
 }
