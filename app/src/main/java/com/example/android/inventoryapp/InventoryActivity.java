@@ -1,16 +1,23 @@
 package com.example.android.inventoryapp;
 
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.ListView;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
-public class InventoryActivity extends AppCompatActivity {
+public class InventoryActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    private static final int PRODUCT_LOADER = 2;
+
+    private ProductCursorAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,12 +33,18 @@ public class InventoryActivity extends AppCompatActivity {
             }
         });
 
-        displayDatabaseInfo();
+        ListView productList = (ListView) findViewById(R.id.product_list);
+        mAdapter = new ProductCursorAdapter(this, null);
+        productList.setAdapter(mAdapter);
+
+        getLoaderManager().initLoader(PRODUCT_LOADER, null, this);
+
     }
 
     private void displayDatabaseInfo() {
 
         String[] projection = new String[] {
+                ProductEntry._ID,
                 ProductEntry.COLUUMN_PRODUCT_NAME,
                 ProductEntry.COLUMN_PRODUCT_PRICE,
                 ProductEntry.COLUMN_PRODUCT_QUANTITY,
@@ -58,10 +71,38 @@ public class InventoryActivity extends AppCompatActivity {
                 result += name + " - " + price + " - " + quantity + "\n\n";
             }
 
-            TextView textView = (TextView) findViewById(R.id.db_count);
-            textView.setText(result);
             cursor.close();
         }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case PRODUCT_LOADER:
+                String[] projection = new String[] {
+                        ProductEntry._ID,
+                        ProductEntry.COLUUMN_PRODUCT_NAME,
+                        ProductEntry.COLUMN_PRODUCT_PRICE,
+                        ProductEntry.COLUMN_PRODUCT_QUANTITY,
+                        ProductEntry.COLUMN_PRODUCT_IMAGE
+                };
+
+                // get Cursor loader
+                return new CursorLoader(getApplicationContext(), ProductEntry.CONTENT_URI, projection, null, null, null);
+            default:
+                // Loader not recognized
+                return null;
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        mAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        mAdapter.swapCursor(null);
     }
 
     // TODO: Add AsyncLoader
