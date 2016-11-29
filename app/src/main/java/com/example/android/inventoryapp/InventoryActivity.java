@@ -38,7 +38,6 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         productList.setAdapter(mAdapter);
 
         getLoaderManager().initLoader(PRODUCT_LOADER, null, this);
-
     }
 
     private void displayDatabaseInfo() {
@@ -105,6 +104,4 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         mAdapter.swapCursor(null);
     }
 
-    // TODO: Add AsyncLoader
-    // TODO: Add CursorAdaptor and list
 }
