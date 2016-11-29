@@ -47,6 +47,8 @@ public class ProductContract {
          * quantity (INTEGER DEFAULT 0)
          * image - string of location for uri (TEXT)
          */
+
+        public static final String _ID = "_id";
         public static final String COLUUMN_PRODUCT_NAME = "name";
         public static final String COLUMN_PRODUCT_PRICE = "price";
         public static final String COLUMN_PRODUCT_QUANTITY = "quantity";
