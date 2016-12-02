@@ -21,8 +21,11 @@
             android:authorities="com.example.android.products"
             android:exported="false"/>
 
-        <activity android:name=".EditorActivity"
+        <activity
+            android:name=".EditorActivity"
             android:parentActivityName=".InventoryActivity">
+        </activity>
+        <activity android:name=".ProductPreviewActivity">
         </activity>
     </application>
 

@@ -3,12 +3,17 @@
     <string name="app_name">Inventory App</string>
     <string name="add_activity">Add a new product</string>
 
-    <!-- Edit Text hints -->
-    <string name="edit_text_name">Product name</string>
-    <string name="edit_text_price">Price</string>
-    <string name="edit_text_quantity">Quantity</string>
-    <string name="save_button">Save</string>
+    <!-- hints and labels -->
+    <string name="name_label">Product name</string>
+    <string name="price_label">Price</string>
+    <string name="quantity_label">Quantity</string>
 
     <!-- List Item text -->
-    <string name="quantity_text_view">$%1$s</string>
+    <string name="price_text_view">$%1$s</string>
+
+    <!-- buttons -->
+    <string name="save_button">Save</string>
+    <string name="order_button">Order from supplier</string>
+    <string name="receive_button">Receive Shipment</string>
+    <string name="record_sale">Record sale</string>
 </resources>
