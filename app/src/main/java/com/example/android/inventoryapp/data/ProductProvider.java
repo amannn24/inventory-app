@@ -104,8 +104,47 @@ public class ProductProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
-        return 0;
+    public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
+
+        int match = sUriMatcher.match(uri);
+
+        switch (match) {
+            case PRODUCTS:
+                return updateProduct(uri, contentValues, selection, selectionArgs);
+            case PRODUCT_ID:
+                selection = ProductEntry._ID + "=?";
+                selectionArgs = new String[] {
+                        String.valueOf(ContentUris.parseId(uri))
+                };
+                return updateProduct(uri, contentValues, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Update not supported for uri: " + uri);
+        }
+    }
+
+    /**
+     * Helper method to update one or more products in the database
+     * @param uri passed into provider
+     * @param values to be updated
+     * @param selection rows to be affected
+     * @param selectionArgs params to fill the selection
+     * @return the number of rows that were updated
+     */
+    private int updateProduct(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        // If values is empty then don't try to insert anything
+        if (values.size() == 0) {
+            return 0;
+        }
+
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        int rowsAffected = db.update(ProductEntry.TABLE_NAME, values, selection, selectionArgs);
+
+        if (rowsAffected > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return rowsAffected;
     }
 
     /** Helper methods **/

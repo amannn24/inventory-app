@@ -15,13 +15,13 @@
     <EditText
         android:id="@+id/product_name_edit_text"
         android:layout_width="match_parent"
-        android:hint="@string/edit_text_name"
+        android:hint="@string/name_label"
         android:layout_height="wrap_content"/>
 
     <EditText
         android:id="@+id/price_edit_text"
         android:layout_width="match_parent"
-        android:hint="@string/edit_text_price"
+        android:hint="@string/price_label"
         android:inputType="numberDecimal"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"/>
@@ -30,7 +30,7 @@
         android:id="@+id/quantity_edit_text"
         android:inputType="number"
         android:layout_width="match_parent"
-        android:hint="@string/edit_text_quantity"
+        android:hint="@string/quantity_label"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"/>
 

@@ -48,7 +48,7 @@ public class ProductCursorAdapter extends CursorAdapter {
         // Get the price back to decimal format with zeros padding
         double priceDouble = cursor.getDouble(priceIndex) / 100;
         String price = String.format(Locale.US, "%1.2f", priceDouble);
-        String formattedPrice = String.format(context.getString(R.string.quantity_text_view), price);
+        String formattedPrice = String.format(context.getString(R.string.price_text_view), price);
 
         String quantity = Integer.toString(cursor.getInt(quantityIndex));
 

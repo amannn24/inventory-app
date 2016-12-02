@@ -1,14 +1,17 @@
 package com.example.android.inventoryapp;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
@@ -25,6 +28,8 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         setContentView(R.layout.activity_inventory);
 
         final FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.add_product_button);
+
+        // Opens the add a product version of Editor Activity when button is clicked
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -34,8 +39,24 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         });
 
         ListView productList = (ListView) findViewById(R.id.product_list);
+
+        // Setup on item click listener to view product details
+        productList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Intent intent = new Intent(InventoryActivity.this, EditorActivity.class);
+                Uri uri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, id);
+
+                intent.setData(uri);
+                startActivity(intent);
+            }
+        });
+
+
         mAdapter = new ProductCursorAdapter(this, null);
         productList.setAdapter(mAdapter);
+
+        // Setup list item click listener
 
         getLoaderManager().initLoader(PRODUCT_LOADER, null, this);
     }
@@ -64,7 +85,7 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
 
                 String name = cursor.getString(nameIndex);
                 // Get the price back to decimal format
-                String price = Double.toString(cursor.getDouble(priceIndex) / 100);
+                String price = CursorHelper.intToMoneyString(cursor, priceIndex);
                 String quantity = Integer.toString(cursor.getInt(quantityIndex));
 
                 result += name + " - " + price + " - " + quantity + "\n\n";
