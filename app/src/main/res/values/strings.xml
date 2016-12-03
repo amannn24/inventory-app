@@ -2,6 +2,7 @@
     <!-- Action bar titles -->
     <string name="app_name">Inventory App</string>
     <string name="add_activity">Add a new product</string>
+    <string name="product_detail">Product Details</string>
 
     <!-- hints and labels -->
     <string name="name_label">Product name</string>
