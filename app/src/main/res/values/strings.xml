@@ -17,4 +17,13 @@
     <string name="order_button">Order from supplier</string>
     <string name="receive_button">Receive Shipment</string>
     <string name="record_sale">Record sale</string>
+
+    <!-- Dialog Titles -->
+    <string name="receive_dialog_title">Enter the quantity received</string>
+    <string name="record_sale_dialog_title">Enter the quantity sold</string>
+
+    <!-- Dialog Buttons -->
+    <string name="update_quantity_button">Update Quantity</string>
+    <string name="cancel_button">Cancel</string>
+
 </resources>

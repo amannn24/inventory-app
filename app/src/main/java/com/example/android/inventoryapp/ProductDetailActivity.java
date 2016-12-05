@@ -1,19 +1,29 @@
 package com.example.android.inventoryapp;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
+import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
 public class ProductDetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private Uri mUri;
+
+    private int mCurrentQuantity;
+    private double mCurrentPrice;
 
     // Loader id
     private static final int PREVIEW_LOADER = 4;
@@ -25,27 +35,126 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
 
     private TextView mQuantityView;
 
+    // Set up buttons
+    private Button mReceiveShipmentButton;
+
+    private Button mRecordSaleButton;
+
+    private Button mOrderButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_detail);
 
+        // Initialize TextViews
         mNameView = (TextView) findViewById(R.id.name_text_view);
 
         mPriceView = (TextView) findViewById(R.id.price_text_view);
 
         mQuantityView = (TextView) findViewById(R.id.quantity_text_view);
 
+        // Initialize Buttons
+        mReceiveShipmentButton = (Button) findViewById(R.id.shipment_button);
+
+        mRecordSaleButton = (Button) findViewById(R.id.record_sale);
+
+        mOrderButton = (Button) findViewById(R.id.order_button);
+
         // get data from intent
         mUri = getIntent().getData();
+        if (mUri == null) {
+            finish();
+        }
         setTitle(R.string.product_detail);
+
+        // On Click listener for Receiving shipments
+        mReceiveShipmentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                View dialogView = getLayoutInflater().inflate(R.layout.number_picker_dialog, null);
+                // Setup number picker
+                final NumberPicker numberPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+                numberPicker.setMinValue(1);
+                numberPicker.setMaxValue(500);
+                numberPicker.setWrapSelectorWheel(true);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(ProductDetailActivity.this);
+                builder.setView(dialogView);
+
+                builder.setTitle(getString(R.string.receive_dialog_title));
+                builder.setPositiveButton(R.string.update_quantity_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        ContentValues updateValues = new ContentValues();
+                        // clear focus tip from Dvd Franco
+                        // http://stackoverflow.com/questions/3691099/android-numberpicker-not-saving-edittext-changes
+                        numberPicker.clearFocus();
+                        updateValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, numberPicker.getValue() + mCurrentQuantity);
+
+                        int rowsAffected = getContentResolver().update(mUri, updateValues, null, null);
+
+                        if (rowsAffected > 0) {
+                            Toast.makeText(getApplicationContext(), "Quantity has been updated", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Quantity could not be updated", Toast.LENGTH_SHORT).show();
+                        }
+
+                        dialog.dismiss();
+                    }
+                });
+
+                builder.setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        dialog.dismiss();
+                    }
+                });
+
+                builder.create().show();
+            }
+        });
+
+        // On Click listener for marking a sale
+        mRecordSaleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                View dialogView = getLayoutInflater().inflate(R.layout.number_picker_dialog, null);
+                // Setup number picker
+                NumberPicker numberPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+                numberPicker.setMinValue(1);
+                numberPicker.setMaxValue(500);
+                numberPicker.setWrapSelectorWheel(true);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(ProductDetailActivity.this);
+                builder.setView(dialogView);
+
+                builder.setTitle(getString(R.string.record_sale_dialog_title));
+                builder.setPositiveButton(R.string.update_quantity_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        Toast.makeText(getApplicationContext(), "Clicked ok", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
+
+                builder.setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        dialog.dismiss();
+                    }
+                });
+
+                builder.create().show();
+            }
+        });
 
         getLoaderManager().initLoader(PREVIEW_LOADER, null, this);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
-        String[] projection = new String[] {
+        String[] projection = new String[]{
                 ProductEntry._ID,
                 ProductEntry.COLUUMN_PRODUCT_NAME,
                 ProductEntry.COLUMN_PRODUCT_PRICE,
@@ -72,12 +181,13 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (cursor != null && cursor.moveToNext()) {
             String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductEntry.COLUUMN_PRODUCT_NAME));
-            String price = CursorHelper.intToMoneyString(cursor, cursor.getColumnIndexOrThrow(ProductEntry.COLUMN_PRODUCT_PRICE));
-            String quantity = String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(ProductEntry.COLUMN_PRODUCT_QUANTITY)));
+            String price = CursorHelper.intToMoneyString(getApplicationContext(), cursor, cursor.getColumnIndexOrThrow(ProductEntry.COLUMN_PRODUCT_PRICE));
+            mCurrentQuantity = cursor.getInt(cursor.getColumnIndexOrThrow(ProductEntry.COLUMN_PRODUCT_QUANTITY));
 
+            String quantityString = String.valueOf(mCurrentQuantity);
             mNameView.setText(name);
             mPriceView.setText(price);
-            mQuantityView.setText(quantity);
+            mQuantityView.setText(quantityString);
         }
     }
 
