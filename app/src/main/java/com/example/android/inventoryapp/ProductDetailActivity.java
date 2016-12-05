@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
-public class ProductPreviewActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ProductDetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private Uri mUri;
 
@@ -28,7 +28,7 @@ public class ProductPreviewActivity extends AppCompatActivity implements LoaderM
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_product_preview);
+        setContentView(R.layout.activity_product_detail);
 
         mNameView = (TextView) findViewById(R.id.name_text_view);
 
