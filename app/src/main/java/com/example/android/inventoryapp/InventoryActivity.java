@@ -61,46 +61,11 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         getLoaderManager().initLoader(PRODUCT_LOADER, null, this);
     }
 
-    private void displayDatabaseInfo() {
-
-        String[] projection = new String[] {
-                ProductEntry._ID,
-                ProductEntry.COLUUMN_PRODUCT_NAME,
-                ProductEntry.COLUMN_PRODUCT_PRICE,
-                ProductEntry.COLUMN_PRODUCT_QUANTITY,
-                ProductEntry.COLUMN_PRODUCT_IMAGE
-        };
-
-        Cursor cursor = getContentResolver().query(ProductEntry.CONTENT_URI, projection, null, null, null);
-
-        if (cursor != null) {
-            int count = cursor.getCount();
-
-            String result = "";
-
-            while (cursor.moveToNext()) {
-                int nameIndex = cursor.getColumnIndex(ProductEntry.COLUUMN_PRODUCT_NAME);
-                int priceIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE);
-                int quantityIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY);
-
-                String name = cursor.getString(nameIndex);
-                // Get the price back to decimal format
-                double price = CursorHelper.intToMoneyDecimal(cursor, priceIndex);
-                String priceString = Double.toString(price);
-                String quantity = Integer.toString(cursor.getInt(quantityIndex));
-
-                result += name + " - " + price + " - " + quantity + "\n\n";
-            }
-
-            cursor.close();
-        }
-    }
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case PRODUCT_LOADER:
-                String[] projection = new String[] {
+                String[] projection = new String[]{
                         ProductEntry._ID,
                         ProductEntry.COLUUMN_PRODUCT_NAME,
                         ProductEntry.COLUMN_PRODUCT_PRICE,
