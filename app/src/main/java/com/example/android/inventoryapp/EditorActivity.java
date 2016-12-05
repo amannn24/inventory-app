@@ -129,7 +129,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         if (cursor != null && cursor.moveToNext()) {
             // Extract data from cursor
             String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductEntry.COLUUMN_PRODUCT_NAME));
-            String price = CursorHelper.intToMoneyString(cursor, cursor.getColumnIndexOrThrow(ProductEntry.COLUMN_PRODUCT_PRICE));
+            String price = CursorHelper.intToMoneyString(getApplicationContext(), cursor, cursor.getColumnIndexOrThrow(ProductEntry.COLUMN_PRODUCT_PRICE));
             String quantity = String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(ProductEntry.COLUMN_PRODUCT_QUANTITY)));
 
             // set edit text values

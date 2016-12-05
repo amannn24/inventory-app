@@ -85,7 +85,8 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
 
                 String name = cursor.getString(nameIndex);
                 // Get the price back to decimal format
-                String price = CursorHelper.intToMoneyString(cursor, priceIndex);
+                double price = CursorHelper.intToMoneyDecimal(cursor, priceIndex);
+                String priceString = Double.toString(price);
                 String quantity = Integer.toString(cursor.getInt(quantityIndex));
 
                 result += name + " - " + price + " - " + quantity + "\n\n";
