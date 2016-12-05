@@ -10,8 +10,6 @@ import android.widget.TextView;
 
 import com.example.android.inventoryapp.data.ProductContract;
 
-import java.util.Locale;
-
 /**
  * Created by Chris on 11/28/2016.
  */
@@ -46,9 +44,7 @@ public class ProductCursorAdapter extends CursorAdapter {
         String name = cursor.getString(nameIndex);
 
         // Get the price back to decimal format with zeros padding
-        double priceDouble = cursor.getDouble(priceIndex) / 100;
-        String price = String.format(Locale.US, "%1.2f", priceDouble);
-        String formattedPrice = String.format(context.getString(R.string.price_text_view), price);
+        String formattedPrice = CursorHelper.intToMoneyString(context, cursor, priceIndex);
 
         String quantity = Integer.toString(cursor.getInt(quantityIndex));
 
