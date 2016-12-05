@@ -56,8 +56,6 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         mAdapter = new ProductCursorAdapter(this, null);
         productList.setAdapter(mAdapter);
 
-        // Setup list item click listener
-
         getLoaderManager().initLoader(PRODUCT_LOADER, null, this);
     }
 
@@ -65,7 +63,7 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case PRODUCT_LOADER:
-                String[] projection = new String[]{
+                String[] projection = new String[] {
                         ProductEntry._ID,
                         ProductEntry.COLUUMN_PRODUCT_NAME,
                         ProductEntry.COLUMN_PRODUCT_PRICE,
