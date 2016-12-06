@@ -8,9 +8,10 @@
     <string name="name_label">Product name</string>
     <string name="price_label">Price</string>
     <string name="quantity_label">Quantity</string>
+    <string name="total_sales_label">Total Sales</string>
 
     <!-- List Item text -->
-    <string name="price_text_view">$%1$s</string>
+    <string name="money_text_view">$%1$s</string>
 
     <!-- buttons -->
     <string name="save_button">Save</string>
@@ -25,5 +26,6 @@
     <!-- Dialog Buttons -->
     <string name="update_quantity_button">Update Quantity</string>
     <string name="cancel_button">Cancel</string>
+
 
 </resources>

@@ -22,8 +22,10 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
 
     private Uri mUri;
 
+    // data variables
     private int mCurrentQuantity;
     private double mCurrentPrice;
+    private double mCurrentSales;
 
     // Loader id
     private static final int PREVIEW_LOADER = 4;
@@ -34,6 +36,8 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
     private TextView mPriceView;
 
     private TextView mQuantityView;
+
+    private TextView mTotalSalesView;
 
     // Set up buttons
     private Button mReceiveShipmentButton;
@@ -54,6 +58,8 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
 
         mQuantityView = (TextView) findViewById(R.id.quantity_text_view);
 
+        mTotalSalesView = (TextView) findViewById(R.id.total_sales_text_view);
+
         // Initialize Buttons
         mReceiveShipmentButton = (Button) findViewById(R.id.shipment_button);
 
@@ -66,6 +72,7 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
         if (mUri == null) {
             finish();
         }
+
         setTitle(R.string.product_detail);
 
         // On Click listener for Receiving shipments
@@ -121,7 +128,7 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
             public void onClick(View view) {
                 View dialogView = getLayoutInflater().inflate(R.layout.number_picker_dialog, null);
                 // Setup number picker
-                NumberPicker numberPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+                final NumberPicker numberPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
                 numberPicker.setMinValue(1);
                 numberPicker.setMaxValue(500);
                 numberPicker.setWrapSelectorWheel(true);
@@ -133,7 +140,33 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
                 builder.setPositiveButton(R.string.update_quantity_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int i) {
-                        Toast.makeText(getApplicationContext(), "Clicked ok", Toast.LENGTH_SHORT).show();
+                        // Sets correct value
+                        numberPicker.clearFocus();
+                        ContentValues updateValues = new ContentValues();
+
+                        int amountToSell = numberPicker.getValue();
+
+                        if (mCurrentQuantity - amountToSell < 0) {
+                            Toast.makeText(getApplicationContext(), "Insufficient quantity to complete order", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            return;
+                        }
+
+                        updateValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, mCurrentQuantity - amountToSell);
+
+                        // Multiple sale times 100 to get in int form
+                        int newSalesAmount = (int) (mCurrentSales + (amountToSell * mCurrentPrice)) * 100;
+                        updateValues.put(ProductEntry.COLUMN_PROCUCT_SALES_TOTAL, newSalesAmount);
+
+                        int rowsAffected = getContentResolver().update(mUri, updateValues, null, null);
+
+                        if (rowsAffected > 0) {
+                            Toast.makeText(getApplicationContext(), "Sale has been recorded", Toast.LENGTH_SHORT).show();
+                            getContentResolver().notifyChange(mUri, null);
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Sale could not be recorded", Toast.LENGTH_SHORT).show();
+                        }
+
                         dialog.dismiss();
                     }
                 });
@@ -182,13 +215,18 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (cursor != null && cursor.moveToNext()) {
             String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductEntry.COLUUMN_PRODUCT_NAME));
-            String price = CursorHelper.intToMoneyString(getApplicationContext(), cursor, cursor.getColumnIndexOrThrow(ProductEntry.COLUMN_PRODUCT_PRICE));
             mCurrentQuantity = cursor.getInt(cursor.getColumnIndexOrThrow(ProductEntry.COLUMN_PRODUCT_QUANTITY));
+            mCurrentPrice = CursorHelper.intToMoneyDecimal(cursor, cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE));
+            mCurrentSales = CursorHelper.intToMoneyDecimal(cursor, cursor.getColumnIndex(ProductEntry.COLUMN_PROCUCT_SALES_TOTAL));
 
+            String priceString = CursorHelper.doubleToMoneyString(getApplicationContext(), mCurrentPrice);
             String quantityString = String.valueOf(mCurrentQuantity);
+            String totalSalesString = CursorHelper.doubleToMoneyString(getApplicationContext(), mCurrentSales);
+
             mNameView.setText(name);
-            mPriceView.setText(price);
+            mPriceView.setText(priceString);
             mQuantityView.setText(quantityString);
+            mTotalSalesView.setText(totalSalesString);
         }
     }
 
@@ -197,5 +235,6 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
         mNameView.setText("");
         mPriceView.setText("");
         mQuantityView.setText("");
+        mTotalSalesView.setText("");
     }
 }

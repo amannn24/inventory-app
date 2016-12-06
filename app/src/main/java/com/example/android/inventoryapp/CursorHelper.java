@@ -22,13 +22,11 @@ public class CursorHelper {
     /**
      *
      * @param context used to get string formatting resource
-     * @param cursor the data
-     * @param index the column index of the price in the cursor
+     * @param priceDouble price to be formatted
      * @return a formatted money string
      */
-    public static final String intToMoneyString(Context context, Cursor cursor, int index) {
-        double priceDouble = cursor.getDouble(index) / 100;
+    public static final String doubleToMoneyString(Context context, double priceDouble) {
         String price = String.format(Locale.US, "%1.2f", priceDouble);
-        return String.format(context.getString(R.string.price_text_view), price);
+        return String.format(context.getString(R.string.money_text_view), price);
     }
 }
