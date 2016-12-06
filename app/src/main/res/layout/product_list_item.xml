@@ -4,8 +4,11 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
+              android:descendantFocusability="blocksDescendants"
               android:padding="16dp">
 
+    <!-- descendantFocusability to block button from stealing focus from list item - Bhavesh Hirpara -->
+    <!-- http://stackoverflow.com/questions/2098558/listview-with-clickable-editable-widget -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,6 +39,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/record_sale"
         android:id="@+id/record_sale_button"/>
 
 </LinearLayout>
