@@ -159,6 +159,7 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
                 ProductEntry.COLUUMN_PRODUCT_NAME,
                 ProductEntry.COLUMN_PRODUCT_PRICE,
                 ProductEntry.COLUMN_PRODUCT_QUANTITY,
+                ProductEntry.COLUMN_PROCUCT_SALES_TOTAL,
                 ProductEntry.COLUMN_PRODUCT_IMAGE
         };
 

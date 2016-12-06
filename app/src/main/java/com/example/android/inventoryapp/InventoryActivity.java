@@ -68,6 +68,7 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
                         ProductEntry.COLUUMN_PRODUCT_NAME,
                         ProductEntry.COLUMN_PRODUCT_PRICE,
                         ProductEntry.COLUMN_PRODUCT_QUANTITY,
+                        ProductEntry.COLUMN_PROCUCT_SALES_TOTAL,
                         ProductEntry.COLUMN_PRODUCT_IMAGE
                 };
 
