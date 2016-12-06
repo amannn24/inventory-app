@@ -5,8 +5,8 @@ import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CursorAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
@@ -38,19 +38,22 @@ public class ProductCursorAdapter extends CursorAdapter {
         TextView priceTextView = (TextView) view.findViewById(R.id.price_text_view);
         TextView quantityTextView = (TextView) view.findViewById(R.id.quantity_text_view);
 
+        // Get column indices
         int nameIndex = cursor.getColumnIndex(ProductEntry.COLUUMN_PRODUCT_NAME);
         int priceIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE);
         int quantityIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY);
-        double salesTotal = CursorHelper.intToMoneyDecimal(cursor, cursor.getColumnIndex(ProductEntry.COLUMN_PROCUCT_SALES_TOTAL));
+        int salesTotalIndex =  cursor.getColumnIndex(ProductEntry.COLUMN_PROCUCT_SALES_TOTAL);
 
         // Record a sale button
-        Button recordSaleButton = (Button) view.findViewById(R.id.record_sale_button);
+        ImageButton recordSaleButton = (ImageButton) view.findViewById(R.id.record_sale_button);
 
+        // Get data from cursor
         String name = cursor.getString(nameIndex);
+        double price = CursorHelper.intToMoneyDecimal(cursor, priceIndex);
+        double salesTotal = CursorHelper.intToMoneyDecimal(cursor, salesTotalIndex);
 
-        // Get the price back to decimal format with zeros padding
-        String formattedPrice = CursorHelper.intToMoneyString(context, cursor, priceIndex);
-
+        // String formatting for text views
+        String formattedPrice = CursorHelper.doubleToMoneyString(context, price);
         String quantity = Integer.toString(cursor.getInt(quantityIndex));
 
         nameTextView.setText(name);
