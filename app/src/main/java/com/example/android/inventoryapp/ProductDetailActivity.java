@@ -68,8 +68,11 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
         mOrderButton = (Button) findViewById(R.id.order_button);
 
         // get data from intent
+
         mUri = getIntent().getData();
-        if (mUri == null) {
+
+         if (mUri == null) {
+            // Close the activity
             finish();
         }
 
@@ -182,7 +185,7 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
             }
         });
 
-        getLoaderManager().initLoader(PREVIEW_LOADER, null, this);
+        getLoaderManager().restartLoader(PREVIEW_LOADER, null, this);
     }
 
     @Override
