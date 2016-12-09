@@ -27,7 +27,7 @@ public class ProductDbHelper extends SQLiteOpenHelper {
                 ProductEntry.COLUMN_PRODUCT_PRICE + " INTEGER NOT NULL, " +
                 ProductEntry.COLUMN_PRODUCT_QUANTITY + " INTEGER DEFAULT 0, " +
                 ProductEntry.COLUMN_PROCUCT_SALES_TOTAL + " INTEGER DEFAULT 0, " +
-                ProductEntry.COLUMN_PRODUCT_IMAGE + " TEXT" + ");";
+                ProductEntry.COLUMN_PRODUCT_IMAGE + " Blob" + ");";
 
         db.execSQL(SQL_CREATE_PRODUCTS_TABLE);
     }
