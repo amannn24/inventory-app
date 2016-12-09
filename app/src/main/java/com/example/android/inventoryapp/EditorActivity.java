@@ -96,7 +96,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         getContentResolver().update(mUri, values, null, null);
 
         finish();
-    };
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
