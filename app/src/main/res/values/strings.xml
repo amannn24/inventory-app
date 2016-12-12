@@ -9,6 +9,8 @@
     <string name="price_label">Price</string>
     <string name="quantity_label">Quantity</string>
     <string name="total_sales_label">Total Sales</string>
+    <string name="product_image_label">Product Image</string>
+    <string name="image_hint">Choose an image...</string>
 
     <!-- List Item text -->
     <string name="money_text_view">$%1$s</string>
@@ -18,6 +20,7 @@
     <string name="order_button">Order from supplier</string>
     <string name="receive_button">Receive Shipment</string>
     <string name="record_sale">Record sale</string>
+    <string name="choose_image">Browse</string>
 
     <!-- Dialog Titles -->
     <string name="receive_dialog_title">Enter the quantity received</string>
@@ -26,6 +29,5 @@
     <!-- Dialog Buttons -->
     <string name="update_quantity_button">Update Quantity</string>
     <string name="cancel_button">Cancel</string>
-
 
 </resources>
