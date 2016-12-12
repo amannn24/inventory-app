@@ -15,18 +15,28 @@ public class CursorHelper {
      * @param index the column index
      * @return cursor double divided by 100 to get decimal places
      */
-    public static final Double intToMoneyDecimal(Cursor cursor, int index) {
+    public static final Double intToDecimal(Cursor cursor, int index) {
         return cursor.getDouble(index) / 100;
+    }
+
+    /**
+     * @param value as a double
+     * @return decimal to 2 places: 2 => 2.00
+     */
+    public static final String doubleToDecimalString(double value) {
+        return String.format(Locale.US, "%1.2f", value);
     }
 
     /**
      *
      * @param context used to get string formatting resource
      * @param priceDouble price to be formatted
-     * @return a formatted money string
+     * @return a formatted money string: 5.4 => $5.40
      */
     public static final String doubleToMoneyString(Context context, double priceDouble) {
-        String price = String.format(Locale.US, "%1.2f", priceDouble);
+        String price = doubleToDecimalString(priceDouble);
         return String.format(context.getString(R.string.money_text_view), price);
     }
+
+
 }
