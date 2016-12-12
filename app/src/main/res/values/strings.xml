@@ -30,4 +30,7 @@
     <string name="update_quantity_button">Update Quantity</string>
     <string name="cancel_button">Cancel</string>
 
+    <!-- Edit Action -->
+    <string name="edit_action">Edit</string>
+
 </resources>

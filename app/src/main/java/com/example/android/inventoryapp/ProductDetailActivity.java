@@ -5,11 +5,15 @@ import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.NumberPicker;
@@ -239,5 +243,31 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
         mPriceView.setText("");
         mQuantityView.setText("");
         mTotalSalesView.setText("");
+    }
+
+    // Menu setup
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (mUri == null) {
+            return false;
+        }
+
+        switch (item.getItemId()) {
+            case R.id.action_edit:
+                // open editor activity
+                Intent intent = new Intent(this, EditorActivity.class);
+                intent.setData(mUri);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
     }
 }
