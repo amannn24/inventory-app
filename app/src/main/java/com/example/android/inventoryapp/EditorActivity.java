@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
@@ -39,7 +41,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private EditText mEditQuantity;
 
+    private byte[] mImageByteArray;
+
     private Button mImageButton;
+
+    private ImageView mProductImageView;
+
     private static final int IMAGE_PICKER_CODE = 7;
 
     @Override
@@ -54,6 +61,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mEditPrice = (EditText) findViewById(R.id.price_edit_text);
         mEditQuantity = (EditText) findViewById(R.id.quantity_edit_text);
 
+        // Initialize image view
+        mProductImageView = (ImageView) findViewById(R.id.product_image);
+
         // Change action bar title
         if (mUri != null) {
             setTitle("Product Info");
@@ -67,21 +77,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Reference items
-                EditText nameField = (EditText) findViewById(R.id.product_name_edit_text);
-                EditText priceField = (EditText) findViewById(R.id.price_edit_text);
-                EditText quantityField = (EditText) findViewById(R.id.quantity_edit_text);
 
                 // Get values
-                String name = nameField.getText().toString();
+                String name = mEditName.getText().toString();
                 // Save price multiplied by 100 to save without decimals for accuracy
-                int price = (int) (parseDouble(priceField.getText().toString()) * 100);
-                int quantity = parseInt(quantityField.getText().toString());
+                int price = (int) (parseDouble(mEditPrice.getText().toString()) * 100);
+                int quantity = parseInt(mEditQuantity.getText().toString());
 
                 if (mUri == null) {
-                    addProduct(name, price, quantity);
+                    addProduct(name, price, quantity, mImageByteArray);
                 } else {
-                    editProduct(name, price, quantity);
+                    editProduct(name, price, quantity, mImageByteArray);
                 }
             }
         });
@@ -102,25 +108,51 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         });
     }
 
-    // Calls to insert product to database
-    private void addProduct(String name, int price, int quantity) {
+    /**
+     * Inserts a new product into the database
+     * @param name of the product
+     * @param price of the product
+     * @param quantity of the product in stock
+     * @param imageByteArray for the compressed bitmap image
+     */
+    private void addProduct(String name, int price, int quantity, byte[] imageByteArray) {
         ContentValues values = new ContentValues();
         values.put(ProductEntry.COLUUMN_PRODUCT_NAME, name);
         values.put(ProductEntry.COLUMN_PRODUCT_PRICE, price);
         values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, quantity);
 
+        if (imageByteArray != null) {
+            values.put(ProductEntry.COLUMN_PRODUCT_IMAGE, imageByteArray);
+        }
+
         Uri uri = getContentResolver().insert(ProductEntry.CONTENT_URI, values);
+
+        if (uri == null) {
+            Toast.makeText(getApplicationContext(), "Product could not be created", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getApplicationContext(), "Product has been created", Toast.LENGTH_SHORT).show();
+            getContentResolver().notifyChange(mUri, null);
+        }
 
         finish();
     }
 
-    ;
-
-    private void editProduct(String name, int price, int quantity) {
+    /**
+     * Updates an existing product in the database
+     * @param name of the product
+     * @param price of the product
+     * @param quantity of the product in stock
+     * @param imageByteArray for the compressed bitmap image
+     */
+    private void editProduct(String name, int price, int quantity, byte[] imageByteArray) {
         ContentValues values = new ContentValues();
         values.put(ProductEntry.COLUUMN_PRODUCT_NAME, name);
         values.put(ProductEntry.COLUMN_PRODUCT_PRICE, price);
         values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, quantity);
+
+        if (imageByteArray != null) {
+            values.put(ProductEntry.COLUMN_PRODUCT_IMAGE, imageByteArray);
+        }
 
         int rowsAffected = getContentResolver().update(mUri, values, null, null);
 
@@ -172,12 +204,21 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
             String quantity = String.valueOf(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY)));
 
+            // Get Image if available
+            mImageByteArray = cursor.getBlob(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_IMAGE));
+            Bitmap productImage = convertBlobToBitmap(mImageByteArray);
+
+            // set Image
+            mProductImageView.setImageBitmap(productImage);
+
             // set edit text values
             mEditName.setText(name);
             mEditPrice.setText(priceString);
             mEditQuantity.setText(quantity);
+
         }
     }
+
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
@@ -198,9 +239,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 final Uri imageUri = data.getData();
                 final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                 final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                mProductImageView.setImageBitmap(selectedImage);
                 // Temp code to store image
-                ImageView imageView = (ImageView) findViewById(R.id.product_image);
-                imageView.setImageBitmap(selectedImage);
+                mImageByteArray = saveImageAsBlob(selectedImage);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 Toast.makeText(EditorActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
@@ -208,5 +249,36 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         } else if (requestCode == IMAGE_PICKER_CODE) {
             Toast.makeText(EditorActivity.this, "You haven't picked an image", Toast.LENGTH_LONG).show();
         }
+    }
+
+    /**
+     * converts an image bitmap into a sql blob-compatible array
+     * @param bitmapImage the input image
+     * @return byte[] of the compressed image
+     */
+    private byte[] saveImageAsBlob(Bitmap bitmapImage) {
+        // result
+        byte[] byteArray;
+
+        try {
+            // http://stackoverflow.com/questions/10618325/how-to-create-a-blob-from-bitmap-in-android-activity
+            // from user grattmandu03
+            ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, byteOutputStream);
+            byteArray = byteOutputStream.toByteArray();
+        } catch (Exception e) {
+            Log.e("EditorActivity", "saveImageAsBlob exception: " + e);
+            return null;
+        }
+
+        return byteArray;
+    }
+
+    private Bitmap convertBlobToBitmap(byte[] imageByteArray) {
+        if (imageByteArray == null) {
+            return null;
+        }
+
+        return BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.length);
     }
 }
