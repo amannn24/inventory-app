@@ -25,7 +25,6 @@ public class ProductCursorAdapter extends CursorAdapter {
 
     /**
      * Constructs a new {@link #ProductCursorAdapter}
-     *
      * @param context
      * @param c       the cursor that holds the data
      */

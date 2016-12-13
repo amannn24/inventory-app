@@ -3,6 +3,7 @@ package com.example.android.inventoryapp;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -30,6 +31,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private EditText mEditPrice;
 
     private EditText mEditQuantity;
+
+    private Button mImageButton;
+    private static final int IMAGE_PICKER_CODE = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +78,22 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 }
             }
         });
+
+        // Setup image upload button
+        mImageButton = (Button) findViewById(R.id.image_upload_button);
+        mImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Create image picker intent
+                // Several helpful answers on here: http://stackoverflow.com/questions/5309190/android-pick-images-from-gallery
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                Intent chooserIntent = Intent.createChooser(intent, "Select an Image");
+                startActivityForResult(chooserIntent, IMAGE_PICKER_CODE);
+            }
+        });
+
     }
 
     // Calls to insert product to database
