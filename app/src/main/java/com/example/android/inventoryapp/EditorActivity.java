@@ -1,20 +1,27 @@
 package com.example.android.inventoryapp;
 
+import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
@@ -93,7 +100,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 startActivityForResult(chooserIntent, IMAGE_PICKER_CODE);
             }
         });
-
     }
 
     // Calls to insert product to database
@@ -106,7 +112,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         Uri uri = getContentResolver().insert(ProductEntry.CONTENT_URI, values);
 
         finish();
-    };
+    }
+
+    ;
 
     private void editProduct(String name, int price, int quantity) {
         ContentValues values = new ContentValues();
@@ -128,7 +136,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
-        String[] projection = new String[] {
+        String[] projection = new String[]{
                 ProductEntry._ID,
                 ProductEntry.COLUUMN_PRODUCT_NAME,
                 ProductEntry.COLUMN_PRODUCT_PRICE,
@@ -148,7 +156,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 );
 
             default:
-                    return null;
+                return null;
         }
     }
 
@@ -176,5 +184,29 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mEditName.setText("");
         mEditPrice.setText("");
         mEditQuantity.setText("");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == IMAGE_PICKER_CODE && resultCode == Activity.RESULT_OK) {
+            if (data == null) {
+                return;
+            }
+            // Otherwise get image out of data
+            try {
+                final Uri imageUri = data.getData();
+                final InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                // Temp code to store image
+                ImageView imageView = (ImageView) findViewById(R.id.product_image);
+                imageView.setImageBitmap(selectedImage);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Toast.makeText(EditorActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
+            }
+        } else if (requestCode == IMAGE_PICKER_CODE) {
+            Toast.makeText(EditorActivity.this, "You haven't picked an image", Toast.LENGTH_LONG).show();
+        }
     }
 }
