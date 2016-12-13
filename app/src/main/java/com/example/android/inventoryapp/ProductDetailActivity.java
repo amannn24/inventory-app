@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +45,8 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
 
     private TextView mTotalSalesView;
 
+    private ImageView mProductImageView;
+
     // Set up buttons
     private Button mReceiveShipmentButton;
 
@@ -63,6 +67,8 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
         mQuantityView = (TextView) findViewById(R.id.quantity_text_view);
 
         mTotalSalesView = (TextView) findViewById(R.id.total_sales_text_view);
+
+        mProductImageView = (ImageView) findViewById(R.id.product_image);
 
         // Initialize Buttons
         mReceiveShipmentButton = (Button) findViewById(R.id.shipment_button);
@@ -229,6 +235,13 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
             String priceString = CursorHelper.doubleToMoneyString(getApplicationContext(), mCurrentPrice);
             String quantityString = String.valueOf(mCurrentQuantity);
             String totalSalesString = CursorHelper.doubleToMoneyString(getApplicationContext(), mCurrentSales);
+
+            // Get Image if available
+            byte[] imageByteArray = cursor.getBlob(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_IMAGE));
+            Bitmap productImage = ImageHelper.convertBlobToBitmap(imageByteArray);
+
+            // set Image
+            mProductImageView.setImageBitmap(productImage);
 
             mNameView.setText(name);
             mPriceView.setText(priceString);

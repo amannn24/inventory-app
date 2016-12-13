@@ -130,7 +130,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             Toast.makeText(getApplicationContext(), "Product could not be created", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getApplicationContext(), "Product has been created", Toast.LENGTH_SHORT).show();
-            getContentResolver().notifyChange(mUri, null);
         }
 
         finish();
@@ -160,7 +159,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             Toast.makeText(getApplicationContext(), "No changes were saved", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getApplicationContext(), "Product has been updated", Toast.LENGTH_SHORT).show();
-            getContentResolver().notifyChange(mUri, null);
         }
 
         finish();
@@ -218,7 +216,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         }
     }
-
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
