@@ -162,7 +162,7 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
                         updateValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, mCurrentQuantity - amountToSell);
 
                         // Multiple sale times 100 to get in int form
-                        int newSalesAmount = (int) (mCurrentSales + (amountToSell * mCurrentPrice)) * 100;
+                        double newSalesAmount = (double) (mCurrentSales + (amountToSell * mCurrentPrice)) * 100;
                         updateValues.put(ProductEntry.COLUMN_PROCUCT_SALES_TOTAL, newSalesAmount);
 
                         int rowsAffected = getContentResolver().update(mUri, updateValues, null, null);
@@ -221,10 +221,10 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (cursor != null && cursor.moveToNext()) {
-            String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductEntry.COLUUMN_PRODUCT_NAME));
-            mCurrentQuantity = cursor.getInt(cursor.getColumnIndexOrThrow(ProductEntry.COLUMN_PRODUCT_QUANTITY));
-            mCurrentPrice = CursorHelper.intToMoneyDecimal(cursor, cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE));
-            mCurrentSales = CursorHelper.intToMoneyDecimal(cursor, cursor.getColumnIndex(ProductEntry.COLUMN_PROCUCT_SALES_TOTAL));
+            String name = cursor.getString(cursor.getColumnIndex(ProductEntry.COLUUMN_PRODUCT_NAME));
+            mCurrentQuantity = cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY));
+            mCurrentPrice = CursorHelper.intToDecimal(cursor, cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE));
+            mCurrentSales = CursorHelper.intToDecimal(cursor, cursor.getColumnIndex(ProductEntry.COLUMN_PROCUCT_SALES_TOTAL));
 
             String priceString = CursorHelper.doubleToMoneyString(getApplicationContext(), mCurrentPrice);
             String quantityString = String.valueOf(mCurrentQuantity);

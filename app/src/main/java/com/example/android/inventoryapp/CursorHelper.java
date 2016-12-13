@@ -24,7 +24,7 @@ public class CursorHelper {
      * @return decimal to 2 places: 2 => 2.00
      */
     public static final String doubleToDecimalString(double value) {
-        return String.format(Locale.US, "%1.2f", value);
+        return String.format(Locale.US, "%.2f", value);
     }
 
     /**

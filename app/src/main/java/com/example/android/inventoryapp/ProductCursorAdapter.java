@@ -57,8 +57,8 @@ public class ProductCursorAdapter extends CursorAdapter {
         // Get data from cursor
         int id = cursor.getInt(idIndex);
         String name = cursor.getString(nameIndex);
-        final double price = CursorHelper.intToMoneyDecimal(cursor, priceIndex);
-        final double salesTotal = CursorHelper.intToMoneyDecimal(cursor, salesTotalIndex);
+        final double price = CursorHelper.intToDecimal(cursor, priceIndex);
+        final double salesTotal = CursorHelper.intToDecimal(cursor, salesTotalIndex);
 
         // String formatting for text views
         String formattedPrice = CursorHelper.doubleToMoneyString(context, price);
@@ -100,7 +100,7 @@ public class ProductCursorAdapter extends CursorAdapter {
                         updateValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, quantity - amountToSell);
 
                         // Multiple sale times 100 to get in int form
-                        int newSalesAmount = (int) (salesTotal + (amountToSell * price)) * 100;
+                        double newSalesAmount = (double) (salesTotal + (amountToSell * price)) * 100;
                         updateValues.put(ProductEntry.COLUMN_PROCUCT_SALES_TOTAL, newSalesAmount);
 
                         int rowsAffected = context.getContentResolver().update(uri, updateValues, null, null);

@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
@@ -93,7 +94,14 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(ProductEntry.COLUMN_PRODUCT_PRICE, price);
         values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, quantity);
 
-        getContentResolver().update(mUri, values, null, null);
+        int rowsAffected = getContentResolver().update(mUri, values, null, null);
+
+        if (rowsAffected == 0) {
+            Toast.makeText(getApplicationContext(), "No changes were saved", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getApplicationContext(), "Product has been updated", Toast.LENGTH_SHORT).show();
+            getContentResolver().notifyChange(mUri, null);
+        }
 
         finish();
     }
@@ -131,8 +139,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             String name = cursor.getString(cursor.getColumnIndex(ProductEntry.COLUUMN_PRODUCT_NAME));
 
             int priceIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE);
-            Double price = CursorHelper.intToMoneyDecimal(cursor, priceIndex);
-            String priceString = CursorHelper.doubleToMoneyString(getApplicationContext(), price);
+            Double price = CursorHelper.intToDecimal(cursor, priceIndex);
+            String priceString = CursorHelper.doubleToDecimalString(price);
 
             String quantity = String.valueOf(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY)));
 
