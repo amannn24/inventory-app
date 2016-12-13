@@ -12,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,7 +20,6 @@ import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
@@ -110,9 +108,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     /**
      * Inserts a new product into the database
-     * @param name of the product
-     * @param price of the product
-     * @param quantity of the product in stock
+     *
+     * @param name           of the product
+     * @param price          of the product
+     * @param quantity       of the product in stock
      * @param imageByteArray for the compressed bitmap image
      */
     private void addProduct(String name, int price, int quantity, byte[] imageByteArray) {
@@ -139,9 +138,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     /**
      * Updates an existing product in the database
-     * @param name of the product
-     * @param price of the product
-     * @param quantity of the product in stock
+     *
+     * @param name           of the product
+     * @param price          of the product
+     * @param quantity       of the product in stock
      * @param imageByteArray for the compressed bitmap image
      */
     private void editProduct(String name, int price, int quantity, byte[] imageByteArray) {
@@ -206,7 +206,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
             // Get Image if available
             mImageByteArray = cursor.getBlob(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_IMAGE));
-            Bitmap productImage = convertBlobToBitmap(mImageByteArray);
+            Bitmap productImage = ImageHelper.convertBlobToBitmap(mImageByteArray);
 
             // set Image
             mProductImageView.setImageBitmap(productImage);
@@ -241,7 +241,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
                 mProductImageView.setImageBitmap(selectedImage);
                 // Temp code to store image
-                mImageByteArray = saveImageAsBlob(selectedImage);
+                mImageByteArray = ImageHelper.convertBitmapToBlob(selectedImage);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 Toast.makeText(EditorActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
@@ -249,36 +249,5 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         } else if (requestCode == IMAGE_PICKER_CODE) {
             Toast.makeText(EditorActivity.this, "You haven't picked an image", Toast.LENGTH_LONG).show();
         }
-    }
-
-    /**
-     * converts an image bitmap into a sql blob-compatible array
-     * @param bitmapImage the input image
-     * @return byte[] of the compressed image
-     */
-    private byte[] saveImageAsBlob(Bitmap bitmapImage) {
-        // result
-        byte[] byteArray;
-
-        try {
-            // http://stackoverflow.com/questions/10618325/how-to-create-a-blob-from-bitmap-in-android-activity
-            // from user grattmandu03
-            ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, byteOutputStream);
-            byteArray = byteOutputStream.toByteArray();
-        } catch (Exception e) {
-            Log.e("EditorActivity", "saveImageAsBlob exception: " + e);
-            return null;
-        }
-
-        return byteArray;
-    }
-
-    private Bitmap convertBlobToBitmap(byte[] imageByteArray) {
-        if (imageByteArray == null) {
-            return null;
-        }
-
-        return BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.length);
     }
 }
