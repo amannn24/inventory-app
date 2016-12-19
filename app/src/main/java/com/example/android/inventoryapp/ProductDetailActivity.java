@@ -1,6 +1,7 @@
 package com.example.android.inventoryapp;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
@@ -54,6 +55,9 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
 
     private Button mOrderButton;
 
+    // Number picker for dialog reuse
+    private NumberPicker mNumberPicker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,46 +96,15 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
         mReceiveShipmentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                View dialogView = getLayoutInflater().inflate(R.layout.number_picker_dialog, null);
-                // Setup number picker
-                final NumberPicker numberPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
-                numberPicker.setMinValue(1);
-                numberPicker.setMaxValue(500);
-                numberPicker.setWrapSelectorWheel(true);
+                createDialog(getString(R.string.receive_dialog_title), R.string.update_quantity_button, receiveShipmentPositiveMethod);
+            }
+        });
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(ProductDetailActivity.this);
-                builder.setView(dialogView);
-
-                builder.setTitle(getString(R.string.receive_dialog_title));
-                builder.setPositiveButton(R.string.update_quantity_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        ContentValues updateValues = new ContentValues();
-                        // clear focus tip from Dvd Franco
-                        // http://stackoverflow.com/questions/3691099/android-numberpicker-not-saving-edittext-changes
-                        numberPicker.clearFocus();
-                        updateValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, numberPicker.getValue() + mCurrentQuantity);
-
-                        int rowsAffected = getContentResolver().update(mUri, updateValues, null, null);
-
-                        if (rowsAffected > 0) {
-                            Toast.makeText(getApplicationContext(), "Quantity has been updated", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Quantity could not be updated", Toast.LENGTH_SHORT).show();
-                        }
-
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.create().show();
+        // On click for ordering more product
+        mOrderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createDialog("Select quantity to order", R.string.update_quantity_button, orderPositiveMethod);
             }
         });
 
@@ -139,64 +112,103 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
         mRecordSaleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                View dialogView = getLayoutInflater().inflate(R.layout.number_picker_dialog, null);
-                // Setup number picker
-                final NumberPicker numberPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
-                numberPicker.setMinValue(1);
-                numberPicker.setMaxValue(500);
-                numberPicker.setWrapSelectorWheel(true);
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(ProductDetailActivity.this);
-                builder.setView(dialogView);
-
-                builder.setTitle(getString(R.string.record_sale_dialog_title));
-                builder.setPositiveButton(R.string.update_quantity_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        // Sets correct value
-                        numberPicker.clearFocus();
-                        ContentValues updateValues = new ContentValues();
-
-                        int amountToSell = numberPicker.getValue();
-
-                        if (mCurrentQuantity - amountToSell < 0) {
-                            Toast.makeText(getApplicationContext(), "Insufficient quantity to complete order", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                            return;
-                        }
-
-                        updateValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, mCurrentQuantity - amountToSell);
-
-                        // Multiple sale times 100 to get in int form
-                        double newSalesAmount = (double) (mCurrentSales + (amountToSell * mCurrentPrice)) * 100;
-                        updateValues.put(ProductEntry.COLUMN_PROCUCT_SALES_TOTAL, newSalesAmount);
-
-                        int rowsAffected = getContentResolver().update(mUri, updateValues, null, null);
-
-                        if (rowsAffected > 0) {
-                            Toast.makeText(getApplicationContext(), "Sale has been recorded", Toast.LENGTH_SHORT).show();
-                            getContentResolver().notifyChange(mUri, null);
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Sale could not be recorded", Toast.LENGTH_SHORT).show();
-                        }
-
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.create().show();
+                createDialog("Enter quantity sold", R.string.update_quantity_button, recordSalePositiveMethod);
             }
         });
 
         getLoaderManager().restartLoader(PREVIEW_LOADER, null, this);
     }
+
+    /**
+     * Creates a number picker dialog that requires the following parameters
+     * @param title of the dialog
+     * @param positiveButtonLabel - what is on the positive button
+     * @param onClickMethod what to do when the user chooses the positive button
+     */
+    private void createDialog(String title, int positiveButtonLabel, Dialog.OnClickListener onClickMethod) {
+        View dialogView = getLayoutInflater().inflate(R.layout.number_picker_dialog, null);
+        // Setup number picker
+        mNumberPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+        mNumberPicker.setMinValue(1);
+        mNumberPicker.setMaxValue(500);
+        mNumberPicker.setWrapSelectorWheel(true);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(ProductDetailActivity.this);
+        builder.setView(dialogView);
+        builder.setTitle(title);
+
+        builder.setPositiveButton(positiveButtonLabel, onClickMethod);
+
+        builder.setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        builder.create().show();
+    }
+
+    private Dialog.OnClickListener receiveShipmentPositiveMethod = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int i) {
+            ContentValues updateValues = new ContentValues();
+            // clear focus tip from Dvd Franco
+            // http://stackoverflow.com/questions/3691099/android-numberpicker-not-saving-edittext-changes
+            mNumberPicker.clearFocus();
+            updateValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, mNumberPicker.getValue() + mCurrentQuantity);
+
+            int rowsAffected = getContentResolver().update(mUri, updateValues, null, null);
+
+            if (rowsAffected > 0) {
+                Toast.makeText(getApplicationContext(), "Quantity has been updated", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Quantity could not be updated", Toast.LENGTH_SHORT).show();
+            }
+
+            dialog.dismiss();
+        }
+    };
+
+    private Dialog.OnClickListener orderPositiveMethod = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialogInterface, int i) {
+            Toast.makeText(getApplicationContext(), "Clicked positive button", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    private Dialog.OnClickListener recordSalePositiveMethod = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int i) {
+            mNumberPicker.clearFocus();
+            ContentValues updateValues = new ContentValues();
+
+            int amountToSell = mNumberPicker.getValue();
+
+            if (mCurrentQuantity - amountToSell < 0) {
+                Toast.makeText(getApplicationContext(), "Insufficient quantity to complete order", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+                return;
+            }
+
+            updateValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, mCurrentQuantity - amountToSell);
+
+            // Multiple sale times 100 to get in int form
+            double newSalesAmount = (double) (mCurrentSales + (amountToSell * mCurrentPrice)) * 100;
+            updateValues.put(ProductEntry.COLUMN_PROCUCT_SALES_TOTAL, newSalesAmount);
+
+            int rowsAffected = getContentResolver().update(mUri, updateValues, null, null);
+
+            if (rowsAffected > 0) {
+                Toast.makeText(getApplicationContext(), "Sale has been recorded", Toast.LENGTH_SHORT).show();
+                getContentResolver().notifyChange(mUri, null);
+            } else {
+                Toast.makeText(getApplicationContext(), "Sale could not be recorded", Toast.LENGTH_SHORT).show();
+            }
+
+            dialog.dismiss();
+        }
+    };
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
