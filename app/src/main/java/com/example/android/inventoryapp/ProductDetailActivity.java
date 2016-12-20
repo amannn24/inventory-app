@@ -3,6 +3,7 @@ package com.example.android.inventoryapp;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.LoaderManager;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
@@ -30,6 +31,7 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
     private Uri mUri;
 
     // data variables
+    private String mProductName;
     private int mCurrentQuantity;
     private double mCurrentPrice;
     private double mCurrentSales;
@@ -174,6 +176,16 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
         @Override
         public void onClick(DialogInterface dialogInterface, int i) {
             Toast.makeText(getApplicationContext(), "Clicked positive button", Toast.LENGTH_SHORT).show();
+
+            // Create email intent
+            String[] addresses = new String[] {
+                    getString(R.string.order_email_address)
+            };
+
+            String emailBody = "Product: " + mProductName +
+                    "\nOrder Qty: " + mNumberPicker.getValue();
+
+            composeEmail(addresses, getString(R.string.order_subject), emailBody);
         }
     };
 
@@ -210,6 +222,31 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
         }
     };
 
+    /**
+     * creates and opens an email intent for orders
+     * @param addresses recipients
+     * @param subject line
+     * @param body the main email body
+     */
+    public void composeEmail(String[] addresses, String subject, String body) {
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:"));
+        intent.putExtra(Intent.EXTRA_EMAIL, addresses);
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent.putExtra(Intent.EXTRA_TEXT, body);
+
+        // http://stackoverflow.com/questions/27528236/mailto-android-unsupported-action-error
+        // Handle unavailable or non-registered email account on system from Sam @ stackoverflow
+        ComponentName emailApp = intent.resolveActivity(getPackageManager());
+        ComponentName unsupportedAction = ComponentName.unflattenFromString("com.android.fallback/.Fallback");
+        boolean hasEmailApp = emailApp != null && !emailApp.equals(unsupportedAction);
+        if (hasEmailApp) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(getApplicationContext(), "No registered email client available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
         String[] projection = new String[]{
@@ -239,7 +276,7 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (cursor != null && cursor.moveToNext()) {
-            String name = cursor.getString(cursor.getColumnIndex(ProductEntry.COLUUMN_PRODUCT_NAME));
+            mProductName = cursor.getString(cursor.getColumnIndex(ProductEntry.COLUUMN_PRODUCT_NAME));
             mCurrentQuantity = cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY));
             mCurrentPrice = CursorHelper.intToDecimal(cursor, cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE));
             mCurrentSales = CursorHelper.intToDecimal(cursor, cursor.getColumnIndex(ProductEntry.COLUMN_PROCUCT_SALES_TOTAL));
@@ -255,7 +292,7 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
             // set Image
             mProductImageView.setImageBitmap(productImage);
 
-            mNameView.setText(name);
+            mNameView.setText(mProductName);
             mPriceView.setText(priceString);
             mQuantityView.setText(quantityString);
             mTotalSalesView.setText(totalSalesString);

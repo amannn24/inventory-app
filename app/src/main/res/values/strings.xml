@@ -33,4 +33,8 @@
     <!-- Edit Action -->
     <string name="edit_action">Edit</string>
 
+    <!-- Order email -->
+    <string name="order_email_address">total_product_fulfillment@example.com</string>
+    <string name="order_subject">Shipment order request</string>
+
 </resources>
