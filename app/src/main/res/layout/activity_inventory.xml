@@ -8,10 +8,14 @@
     android:layout_height="match_parent"
     tools:context="com.example.android.inventoryapp.InventoryActivity">
 
+    <!-- Add list view space at bottom -->
+    <!-- from Hermant Shori http://stackoverflow.com/questions/3953647/android-adding-empty-space-to-end-of-listview -->
     <ListView
         android:id="@+id/product_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:paddingBottom="80dp"
+        android:clipToPadding="false"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add_product_button"
