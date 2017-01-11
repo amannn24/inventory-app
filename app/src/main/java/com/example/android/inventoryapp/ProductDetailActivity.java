@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,7 +27,8 @@ import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
-public class ProductDetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ProductDetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, NumberPickerDialogFragment.OnCompleteListener
+{
 
     private Uri mUri;
 
@@ -38,6 +40,11 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
 
     // Loader id
     private static final int PREVIEW_LOADER = 4;
+
+    // Dialog type ids
+    private static final int DIALOG_RECEIVE_TYPE = 1;
+    private static final int DIALOG_RECORD_SALE_TYPE = 2;
+    private static final int DIALOG_ORDER_TYPE = 3;
 
     // Set up text fields
     private TextView mNameView;
@@ -94,11 +101,13 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
 
         setTitle(R.string.product_detail);
 
+        // TODO: Make sure dialog tags are in string resources
         // On Click listener for Receiving shipments
         mReceiveShipmentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createDialog(getString(R.string.receive_dialog_title), R.string.update_quantity_button, receiveShipmentPositiveMethod);
+                NumberPickerDialogFragment dialog = NumberPickerDialogFragment.newInstance(DIALOG_RECEIVE_TYPE, getString(R.string.receive_dialog_title), R.string.update_quantity_button);
+                dialog.show(getFragmentManager(), "Receive Dialog");
             }
         });
 
@@ -106,7 +115,8 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
         mOrderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createDialog("Select quantity to order", R.string.update_quantity_button, orderPositiveMethod);
+                NumberPickerDialogFragment dialog = NumberPickerDialogFragment.newInstance(DIALOG_ORDER_TYPE, "Select quantity to order", R.string.update_quantity_button);
+                dialog.show(getFragmentManager(), "Order Dialog");
             }
         });
 
@@ -114,7 +124,8 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
         mRecordSaleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createDialog("Enter quantity sold", R.string.update_quantity_button, recordSalePositiveMethod);
+                NumberPickerDialogFragment dialog = NumberPickerDialogFragment.newInstance(DIALOG_RECORD_SALE_TYPE, "Enter quantity sold", R.string.update_quantity_button);
+                dialog.show(getFragmentManager(), "Record Sale Dialog");
             }
         });
 
@@ -331,5 +342,27 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         return true;
+    }
+
+    // What to do with result of dialogs
+    @Override
+    public void onComplete(int dialogId, int quantity) {
+        // TODO: Add switch statement with number value to update
+        Log.i("ProductDetailActivity", "onComplete called with values: ");
+        Log.i("ProductDetailActivity", "dialogId: " + dialogId + " and quantity: " + quantity);
+
+        switch (dialogId) {
+            case DIALOG_RECEIVE_TYPE:
+                // Call receive method
+                return;
+            case DIALOG_RECORD_SALE_TYPE:
+                // Call receive method
+                return;
+            case DIALOG_ORDER_TYPE:
+                // call order method
+                return;
+            default:
+                Log.e("ProductDetailActivity", "No method found for dialog with id: " + dialogId);
+        }
     }
 }
