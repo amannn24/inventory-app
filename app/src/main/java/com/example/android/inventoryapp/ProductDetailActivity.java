@@ -162,77 +162,6 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
         builder.create().show();
     }
 
-    private Dialog.OnClickListener receiveShipmentPositiveMethod = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int i) {
-            ContentValues updateValues = new ContentValues();
-            // clear focus tip from Dvd Franco
-            // http://stackoverflow.com/questions/3691099/android-numberpicker-not-saving-edittext-changes
-            mNumberPicker.clearFocus();
-            updateValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, mNumberPicker.getValue() + mCurrentQuantity);
-
-            int rowsAffected = getContentResolver().update(mUri, updateValues, null, null);
-
-            if (rowsAffected > 0) {
-                Toast.makeText(getApplicationContext(), "Quantity has been updated", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getApplicationContext(), "Quantity could not be updated", Toast.LENGTH_SHORT).show();
-            }
-
-            dialog.dismiss();
-        }
-    };
-
-    private Dialog.OnClickListener orderPositiveMethod = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialogInterface, int i) {
-            Toast.makeText(getApplicationContext(), "Clicked positive button", Toast.LENGTH_SHORT).show();
-
-            // Create email intent
-            String[] addresses = new String[] {
-                    getString(R.string.order_email_address)
-            };
-
-            String emailBody = "Product: " + mProductName +
-                    "\nOrder Qty: " + mNumberPicker.getValue();
-
-            composeEmail(addresses, getString(R.string.order_subject), emailBody);
-        }
-    };
-
-    private Dialog.OnClickListener recordSalePositiveMethod = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int i) {
-            mNumberPicker.clearFocus();
-            ContentValues updateValues = new ContentValues();
-
-            int amountToSell = mNumberPicker.getValue();
-
-            if (mCurrentQuantity - amountToSell < 0) {
-                Toast.makeText(getApplicationContext(), "Insufficient quantity to complete order", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-                return;
-            }
-
-            updateValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, mCurrentQuantity - amountToSell);
-
-            // Multiple sale times 100 to get in int form
-            double newSalesAmount = (double) (mCurrentSales + (amountToSell * mCurrentPrice)) * 100;
-            updateValues.put(ProductEntry.COLUMN_PROCUCT_SALES_TOTAL, newSalesAmount);
-
-            int rowsAffected = getContentResolver().update(mUri, updateValues, null, null);
-
-            if (rowsAffected > 0) {
-                Toast.makeText(getApplicationContext(), "Sale has been recorded", Toast.LENGTH_SHORT).show();
-                getContentResolver().notifyChange(mUri, null);
-            } else {
-                Toast.makeText(getApplicationContext(), "Sale could not be recorded", Toast.LENGTH_SHORT).show();
-            }
-
-            dialog.dismiss();
-        }
-    };
-
     /**
      * creates and opens an email intent for orders
      * @param addresses recipients
@@ -353,16 +282,72 @@ public class ProductDetailActivity extends AppCompatActivity implements LoaderMa
 
         switch (dialogId) {
             case DIALOG_RECEIVE_TYPE:
-                // Call receive method
+                receiveShipment(quantity);
                 return;
             case DIALOG_RECORD_SALE_TYPE:
-                // Call receive method
+                recordSale(quantity);
                 return;
             case DIALOG_ORDER_TYPE:
-                // call order method
+                orderProduct(quantity);
                 return;
             default:
                 Log.e("ProductDetailActivity", "No method found for dialog with id: " + dialogId);
         }
+    }
+
+    // Adds quantity selected in dialog to the current stock
+    private void receiveShipment(int quantity) {
+        ContentValues updateValues = new ContentValues();
+
+        updateValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, quantity + mCurrentQuantity);
+
+        int rowsAffected = getContentResolver().update(mUri, updateValues, null, null);
+
+        if (rowsAffected > 0) {
+            Toast.makeText(getApplicationContext(), "Quantity has been updated", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getApplicationContext(), "Quantity could not be updated", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Takes selected quantity in the dialog and updates the sales and quantity
+    private void recordSale(int amountToSell) {
+        ContentValues updateValues = new ContentValues();
+
+        if (mCurrentQuantity - amountToSell < 0) {
+            Toast.makeText(getApplicationContext(), "Insufficient quantity to complete order", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        updateValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, mCurrentQuantity - amountToSell);
+
+        // Multiple sale times 100 to get in int form
+        double newSalesAmount = (double) (mCurrentSales + (amountToSell * mCurrentPrice)) * 100;
+        updateValues.put(ProductEntry.COLUMN_PROCUCT_SALES_TOTAL, newSalesAmount);
+
+        int rowsAffected = getContentResolver().update(mUri, updateValues, null, null);
+
+        if (rowsAffected > 0) {
+            Toast.makeText(getApplicationContext(), "Sale has been recorded", Toast.LENGTH_SHORT).show();
+            getContentResolver().notifyChange(mUri, null);
+        } else {
+            Toast.makeText(getApplicationContext(), "Sale could not be recorded", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    // Sends an email with the product information and quantity selected in the dialog
+    private void orderProduct(int quantity) {
+        Toast.makeText(getApplicationContext(), "Clicked positive button", Toast.LENGTH_SHORT).show();
+
+        // Create email intent
+        String[] addresses = new String[] {
+                getString(R.string.order_email_address)
+        };
+
+        String emailBody = "Product: " + mProductName +
+                "\nOrder Qty: " + quantity;
+
+        composeEmail(addresses, getString(R.string.order_subject), emailBody);
     }
 }
