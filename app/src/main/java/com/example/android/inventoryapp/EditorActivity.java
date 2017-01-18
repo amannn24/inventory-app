@@ -12,6 +12,9 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -73,25 +76,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         } else {
             setTitle(getString(R.string.add_activity));
         }
-
-        Button saveButton = (Button) findViewById(R.id.save_button);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                // Get values
-                String name = mEditName.getText().toString();
-                // Save price multiplied by 100 to save without decimals for accuracy
-                int price = (int) (parseDouble(mEditPrice.getText().toString()) * 100);
-                int quantity = parseInt(mEditQuantity.getText().toString());
-
-                if (mUri == null) {
-                    addProduct(name, price, quantity, mImageByteArray);
-                } else {
-                    editProduct(name, price, quantity, mImageByteArray);
-                }
-            }
-        });
 
         // Setup image upload button
         mImageButton = (Button) findViewById(R.id.image_upload_button);
@@ -221,7 +205,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             mEditName.setText(name);
             mEditPrice.setText(priceString);
             mEditQuantity.setText(quantity);
-
         }
     }
 
@@ -255,4 +238,40 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             Toast.makeText(EditorActivity.this, "You haven't picked an image", Toast.LENGTH_LONG).show();
         }
     }
+
+    // Create options menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.editor_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    // Add save action to action bar
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_save:
+                saveProduct();
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void saveProduct() {
+        // Get values
+        String name = mEditName.getText().toString();
+        // Save price multiplied by 100 to save without decimals for accuracy
+        int price = (int) (parseDouble(mEditPrice.getText().toString()) * 100);
+        int quantity = parseInt(mEditQuantity.getText().toString());
+
+        if (mUri == null) {
+            addProduct(name, price, quantity, mImageByteArray);
+        } else {
+            editProduct(name, price, quantity, mImageByteArray);
+        }
+    }
+
 }
