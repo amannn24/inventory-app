@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/ListLabel"
-            android:text="Item"/>
+            android:text="Item" />
 
         <TextView
             android:id="@+id/name_text_view"

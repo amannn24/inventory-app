@@ -62,6 +62,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // Initialize image view
         mProductImageView = (ImageView) findViewById(R.id.product_image);
 
+        // Hide image on initialize
+        mProductImageView.setVisibility(View.GONE);
+
         // Change action bar title
         if (mUri != null) {
             setTitle("Product Info");
@@ -207,7 +210,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             Bitmap productImage = ImageHelper.convertBlobToBitmap(mImageByteArray);
 
             // set Image
-            mProductImageView.setImageBitmap(productImage);
+            if (productImage != null) {
+                mProductImageView.setImageBitmap(productImage);
+                mProductImageView.setVisibility(View.VISIBLE);
+            } else {
+                mProductImageView.setVisibility(View.GONE);
+            }
 
             // set edit text values
             mEditName.setText(name);
