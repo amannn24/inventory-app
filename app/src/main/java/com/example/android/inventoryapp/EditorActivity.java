@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,6 +26,7 @@ import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
@@ -131,6 +133,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      * @param imageByteArray for the compressed bitmap image
      */
     private void editProduct(String name, int price, int quantity, byte[] imageByteArray) {
+
         ContentValues values = new ContentValues();
         values.put(ProductEntry.COLUUMN_PRODUCT_NAME, name);
         values.put(ProductEntry.COLUMN_PRODUCT_PRICE, price);
@@ -260,12 +263,18 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         return super.onOptionsItemSelected(item);
     }
 
+    // Save product in database
     private void saveProduct() {
+
         // Get values
         String name = mEditName.getText().toString();
         // Save price multiplied by 100 to save without decimals for accuracy
         int price = (int) (parseDouble(mEditPrice.getText().toString()) * 100);
         int quantity = parseInt(mEditQuantity.getText().toString());
+
+        if (!validateInput(name, price, quantity)) {
+            return;
+        }
 
         if (mUri == null) {
             addProduct(name, price, quantity, mImageByteArray);
@@ -274,4 +283,29 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
     }
 
+    // Make sure data is valid
+    private boolean validateInput(String name, int price, int quantity) {
+        ArrayList<String> resultList = new ArrayList<String>();
+        if (TextUtils.isEmpty(name)) {
+            resultList.add("name");
+        }
+
+        if (Float.isNaN(price) || price < 0) {
+            resultList.add("price");
+        }
+
+        if (Float.isNaN(quantity) || quantity < 0) {
+            resultList.add("quantity");
+        }
+
+        String negativeToast = TextUtils.join(", ", resultList);
+
+        if (resultList.size() > 0) {
+            Toast.makeText(getApplicationContext(), "Invalid " + negativeToast, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Otherwise the validations passed
+        return true;
+    }
 }
